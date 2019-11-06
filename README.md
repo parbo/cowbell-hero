@@ -6,7 +6,7 @@ The game to get for your midi-converted cowbell!
 
 ## How to run
 
-Load [COWBELL.GFA](COWBELL.GFA) in GFA Basic 3.5, press run.
+Load [COWBELL.LST](COWBELL.LST) in GFA Basic 3.5, press run.
 
 ## How to play
 

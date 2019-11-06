@@ -1,0 +1,162 @@
+' Switch resolution
+~XBIOS(5,L:-1,L:-1,0)
+CLS
+palette$=MKI$(&H111)+MKI$(&H311)+MKI$(&H643)+MKI$(&H632)
+palette$=palette$+MKI$(&H653)+MKI$(&H754)+MKI$(&H654)+MKI$(&H643)
+palette$=palette$+MKI$(&H0)+MKI$(&H322)+MKI$(&H433)+MKI$(&H532)
+palette$=palette$+MKI$(&H0)+MKI$(&H522)+MKI$(&H411)+MKI$(&H766)
+paletteaddr%=V:palette$
+' BMOVE paletteaddr%,&HFFFF8240,32
+~XBIOS(6,L:V:palette$)
+walken$=MKI$(15)+MKI$(15)+MKI$(4)
+walken$=walken$+MKI$(&H1E0)+MKI$(&H180)+MKI$(&H190)+MKI$(&HFFFF)
+walken$=walken$+MKI$(&HC0)+MKI$(&H360)+MKI$(&H68)+MKI$(&HFFCF)
+walken$=walken$+MKI$(&H1E0)+MKI$(&H16C0)+MKI$(&H80C)+MKI$(&HF7EF)
+walken$=walken$+MKI$(&H18A0)+MKI$(&H1F60)+MKI$(&H1FCC)+MKI$(&HF82F)
+walken$=walken$+MKI$(&H330)+MKI$(&HCC0)+MKI$(&H1FEC)+MKI$(&HE01F)
+walken$=walken$+MKI$(&HF90)+MKI$(&H1060)+MKI$(&H1FE0)+MKI$(&HE007)
+walken$=walken$+MKI$(&H1FF0)+MKI$(&H0)+MKI$(&H1FE0)+MKI$(&HE013)
+walken$=walken$+MKI$(&H13FC)+MKI$(&HE010)+MKI$(&H1860)+MKI$(&HD85F)
+walken$=walken$+MKI$(&H1648)+MKI$(&H1988)+MKI$(&H1FF8)+MKI$(&HCFC7)
+walken$=walken$+MKI$(&HE00)+MKI$(&HDD0)+MKI$(&H12A8)+MKI$(&HE087)
+walken$=walken$+MKI$(&H660)+MKI$(&HDB8)+MKI$(&H340)+MKI$(&HF167)
+walken$=walken$+MKI$(&H1F0)+MKI$(&HDB8)+MKI$(&H1F0)+MKI$(&HF027)
+walken$=walken$+MKI$(&H580)+MKI$(&H7E0)+MKI$(&H710)+MKI$(&HFA9F)
+walken$=walken$+MKI$(&H7C0)+MKI$(&HE0)+MKI$(&H580)+MKI$(&HFD5F)
+walken$=walken$+MKI$(&H3C0)+MKI$(&HC0)+MKI$(&H200)+MKI$(&HFEFF)
+walken$=walken$+MKI$(&H300)+MKI$(&H280)+MKI$(&H180)+MKI$(&HFFFF)
+num=10
+DIM objs(num)
+DIM speeds(num)
+ARRAYFILL objs(),0
+FOR i=0 TO 1
+  objs(i)=RAND(100)
+NEXT i
+basespeed=4
+maxspeed=9
+FOR i=0 TO num
+  speeds(i)=basespeed+RAND(maxspeed)
+NEXT i
+objs(0)=0
+objs(1)=32
+objs(3)=48
+fever=37
+VSETCOLOR 0,0,0,0
+COLOR 1
+bubbletext1$="MORE COWBELL!!"
+bubbletext2$="I HAVE A FEVER!"
+DO
+  CLS
+  '  VSYNC
+  BOX 0,0,319,199
+  BOX 1,1,318,198
+  '  PRINT fever
+  '  PUT 50,50,walken$
+  '  PRINT basespeed;
+  ' PRINT " "
+  ' PRINT maxspeed
+  FOR i=0 TO num
+    '    PRINT objs(i);
+    '    PRINT " ";
+    IF objs(i)<>0
+      pos=objs(i)
+      dw(pos,100)
+      IF pos>=320
+        fever=fever+1
+        objs(i)=1
+        speeds(i)=basespeed+RAND(maxspeed)
+      ELSE IF pos<=-320
+        objs(i)=1
+        speeds(i)=basespeed+RAND(maxspeed)
+      ELSE
+        IF pos<0
+          objs(i)=pos-speeds(i)
+        ELSE
+          objs(i)=pos+speeds(i)
+        ENDIF
+        ' Dont remove objs here
+        IF objs(i)=0
+          objs(i)=1
+        ENDIF
+      ENDIF
+    ENDIF
+  NEXT i
+  LINE 250,0,250,200
+  LINE 286,20,294,20
+  LINE 286,20,286,80
+  LINE 294,20,294,80
+  PBOX 286,80,294,59
+  PRINT AT(18,8),"37"
+  PRINT AT(18,3),"50"
+  PBOX 286,59,294,59-3*(fever-37)
+  PRBOX 284,74,296,86
+  IF INP?(3)
+    IF INP(3)=&H90
+      hit=0
+      FOR i=0 TO num
+        IF (objs(i)>=218) AND (objs(i)<250)
+          hit=hit+1
+          objs(i)=-objs(i)
+          ' PRINT "COWBELL!";
+          IF fever>37
+            fever=fever-1
+          ENDIF
+        ENDIF
+      NEXT i
+      IF hit=0
+        LINE 240,98,260,118
+        LINE 260,98,240,118
+        fever=fever+1
+      ENDIF
+    ENDIF
+  ENDIF
+  IF fever>=38
+    IF fever<40
+      PRINT AT(8,10);bubbletext2$
+    ELSE
+      PRINT AT(8,10);bubbletext1$
+    ENDIF
+    BOX 48,60,180,90
+    LINE 180,75,200,45
+    dw(198,32)
+  ENDIF
+  ' Maybe insert new thing to increase
+  IF RAND(1000)<20
+    basespeed=basespeed+1
+    maxspeed=maxspeed+1
+    FOR i=0 TO num
+      IF objs(i)=0
+        objs(i)=1
+        speeds(i)=basespeed+RAND(maxspeed)
+        EXIT IF 1
+      ENDIF
+    NEXT i
+  ENDIF
+  PAUSE 1
+  VSYNC
+  EXIT IF fever>50
+LOOP UNTIL MOUSEK
+IF fever>50
+  CLS
+  PRINT AT(14,14),"GAME OVER"
+  DO
+  LOOP UNTIL MOUSEK
+ENDIF
+~XBIOS(5,L:-1,L:-1,1)
+PROCEDURE dw(x,y)
+  IF x>0
+    PUT x,y,walken$
+  ELSE IF x>-270
+    cx=-x+8
+    cy=y+8
+    offset=(-x-218)/2
+    LINE cx+offset,cy,cx+offset+8,cy
+    LINE cx-offset,cy,cx-offset-8,cy
+    LINE cx,cy+offset,cx,cy+offset+8
+    LINE cx,cy-offset,cx,cy-offset-8
+    LINE cx+offset,cy+offset,cx+offset+2,cy+offset+2
+    LINE cx-offset,cy+offset,cx-offset-2,cy+offset+2
+    LINE cx+offset,cy-offset,cx+offset+2,cy-offset-2
+    LINE cx-offset,cy-offset,cx-offset-2,cy-offset-2
+  ENDIF
+RETURN
